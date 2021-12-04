@@ -57,15 +57,9 @@ permutation solver(Graph& G, Graph& H, AfterStable mode, morph_iter_callback_t c
             case AfterStable::None:
                 break;
             case AfterStable::Bruteforce:
+                brute_force_classified(classes_G, classes_H, G, H);
                 break;
             case AfterStable::Destabilize:
-                break;
-            default:
-                break;
-            }
-            if (mode == AfterStable::Bruteforce){
-                brute_force_classified(classes_G, classes_H, G, H);
-            } else {
                 g_unstable = destabilize(classes_G, G);
                 h_unstable = destabilize(classes_H, H);
                 if (classes_G.size() != classes_H.size() || g_unstable != h_unstable){
@@ -73,6 +67,9 @@ permutation solver(Graph& G, Graph& H, AfterStable mode, morph_iter_callback_t c
                 }
 
                 unstable = g_unstable && h_unstable;
+                break;
+            default:
+                break;
             }
         }
     } while(unstable);
