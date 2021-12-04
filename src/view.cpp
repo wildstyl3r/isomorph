@@ -170,7 +170,7 @@ void View::lexmst()
 
     mainline(root(), initial_ws, nodes);
 
-    _lexmst_streeng = nodes[root()]->getStr();
+    _lexmst_streeng = nodes[root()]->get_str();
     
     for(vertex i = 0; i < V().size(); i++){
 	delete nodes[i];
