@@ -44,7 +44,7 @@ permutation solver(Graph& G, Graph& H, AfterStable mode, morph_iter_callback_t c
         classes_H = classify(H);
         h_unstable = recolor(classes_H, H);
 
-        callback();
+        if (callback) callback();
 
         if (classes_G.size() != classes_H.size() || g_unstable != h_unstable){
             return result;
