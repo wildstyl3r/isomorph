@@ -1,6 +1,6 @@
 #ifndef ORDERING_HPP
 #define ORDERING_HPP
-#include "../../grypho/include/grypho.hpp"
+#include "grypho.hpp"
 #include <map>
 #include <vector>
 
