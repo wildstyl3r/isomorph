@@ -26,7 +26,7 @@ View::View(Graph &g, vertex root) :
 		    if (used[u] == false){
 			used[u] = true;
 			_distance[u] = _distance[v] + 1;
-			_height = _distance[u];
+            _height = _distance[u]+1;
 			bfs.push(u);
 		    }
 		}
