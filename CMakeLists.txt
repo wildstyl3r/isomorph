@@ -10,12 +10,14 @@ set(PROJECT_SOURCES
         src/isomorph.cpp
         src/checker.cpp
         src/utility.cpp
-        src/view.cpp)
+        src/view.cpp
+        src/lex_mst_node.cpp)
 
 add_library(isomorph ${PROJECT_SOURCES})
 
 target_include_directories(
   isomorph
-  PRIVATE $<BUILD_INTERFACE:${isomorph_SOURCE_DIR}/src>)
+  PRIVATE $<BUILD_INTERFACE:${isomorph_SOURCE_DIR}/src>
+  PUBLIC $<BUILD_INTERFACE:${isomorph_SOURCE_DIR}/>)
 
 target_link_libraries(isomorph grypho)
