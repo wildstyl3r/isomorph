@@ -23,9 +23,13 @@ enum class AfterStable {
  * that has more than one element and return to cycle, doing this
  * until number of classes isn't equal to number of vertices
  */
-permutation solver(Graph G, Graph H, AfterStable mode = AfterStable::Destabilize, morph_iter_callback_t callback = nullptr);
+permutation solver(Graph& G, Graph& H, AfterStable mode = AfterStable::Destabilize, morph_iter_callback_t callback = nullptr);
 
 classification classify(Graph& G);
+
+classification classify_canonical(Graph& G);
+
+vector<vector<edge>> deconstruct(Graph& G);
 
 
 #endif
