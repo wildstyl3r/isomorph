@@ -2,7 +2,6 @@
 #define VIEW_HPP
 #include "grypho.hpp"
 #include "lex_mst_node.hpp"
-#include "ordering.hpp"
 #include <queue>
 #include <stack>
 #include <list>
