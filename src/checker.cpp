@@ -1,8 +1,8 @@
 #include "checker.hpp"
 
-Graph<int> wrong1, wrong2;
+Graph wrong1, wrong2;
 
-bool BK_checker(Graph<int> G, Graph<int> H, std::function< std::pair< bool, std::vector<int> >(Graph<int>, Graph<int>) > P, int repeat)
+bool BK_checker(Graph G, Graph H, std::function< std::pair< bool, std::vector<int> >(Graph, Graph) > P, int repeat)
 {
       unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
       std::minstd_rand0 gen(seed);

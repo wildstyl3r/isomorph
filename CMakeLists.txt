@@ -8,7 +8,7 @@ project(
 
 set(PROJECT_SOURCES
         src/isomorph.cpp
-        src/checker.cpp
+        #src/checker.cpp
         src/utility.cpp
         src/view.cpp
         src/lex_mst_node.cpp)
