@@ -38,6 +38,12 @@ classification classify_canonical(Graph& G)
 IsomorphReport solver(Graph& G, Graph& H, AfterStable mode, morph_iter_callback_t callback)
 {
     IsomorphReport result;
+    for(vertex v = 0; v < G.V().size(); ++v){
+        result.g.views.push_back(new View(G, v));
+    }
+    for(vertex v = 0; v < H.V().size(); ++v){
+        result.h.views.push_back(new View(H, v));
+    }
     bool unstable = false, g_unstable, h_unstable;
     do {
         result.g.classes = classify_with_views(G, result.g.views);
