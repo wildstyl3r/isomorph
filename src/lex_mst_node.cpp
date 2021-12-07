@@ -1,4 +1,4 @@
-#include "lex_mst_node.hpp"
+#include "isomorph.hpp"
 
 streeng LexMSTNode::get_str() 
 {
