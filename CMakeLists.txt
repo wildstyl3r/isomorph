@@ -6,6 +6,11 @@ project(
   DESCRIPTION "Graph isomorphism tester based on lexicographically minimum spanning tree recoloring"
   LANGUAGES CXX)
 
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+  option(BUILD_DEMO "Build the demo" ON)
+  option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
+endif()
+
 set(PROJECT_SOURCES
         src/isomorph.cpp
         #src/checker.cpp
@@ -21,3 +26,8 @@ target_include_directories(
   PUBLIC $<BUILD_INTERFACE:${isomorph_SOURCE_DIR}/>)
 
 target_link_libraries(isomorph grypho)
+
+if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR QGrypho_BUILD_DEMO)
+   AND BUILD_DEMO)
+  add_subdirectory(demo)
+endif()

@@ -1,11 +1,7 @@
 #ifndef VIEW_HPP
 #define VIEW_HPP
-#include "grypho.hpp"
-#include "lex_mst_node.hpp"
-#include <queue>
-#include <stack>
-#include <list>
-#include <algorithm>
+#include "common.hpp"
+#include "view.hpp"
 
 using std::queue;
 using std::map;
@@ -15,18 +11,20 @@ using std::stack;
 class View : public Graph
 {
     Graph& _src;
+    Graph* tree;
     const vertex _root;
     attributes _distance;
     attributes _inlet_degree;
     value _height;
     streeng _lexmst_streeng;
     vector<edge> _lexmst;
+    vector< std::list<vertex> > _dockyard;
 
-    void mainline(vertex start, std::unordered_set<vertex>& workset, std::vector< LexMSTNode* >& nodes);
-    void lexmst();
+    void mainline(vertex start, std::vector< LexMSTNode* >& nodes);
     
 public:
     View(Graph &g, vertex root);
+    ~View();
 
     vertex root() { return _root; }
 
@@ -35,8 +33,14 @@ public:
 
     value in_deg(vertex v) { return _inlet_degree[v]; }
     value out_deg(vertex v) { return _adjacency_vector[v].size(); }
+    value color(vertex v);
+
+    string label(vertex v);
+    string id(vertex v);
 
     streeng lexmst_string();
     vector<edge> lexmst_edges();
+    void lexmst();
+    Graph* lexmst_tree();
 };
 #endif

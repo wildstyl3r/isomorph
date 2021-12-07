@@ -4,15 +4,15 @@ bool recolor(const classification& classes, Graph& G)
 {
     // classify() did not change coloring, only previous recolor() could
     if (G.count_colors() == classes.size()){
-	return false;
+        return false;
     }
 
     value color = 0;
     for(const auto& eq_class : classes){
-	for(const vertex& v : eq_class.second) {
-	    G.set_color(v, color);
-	}
-	color++;
+        for(const vertex& v : eq_class.second) {
+            G.set_color(v, color);
+        }
+        color++;
     }
     return true;
 }
@@ -21,7 +21,7 @@ vector< vector<vertex> > make_vector(const classification& classes)
 {
     vector< vector<vertex> > res;
     for (const auto& kv : classes){
-	res.push_back(kv.second);
+        res.push_back(kv.second);
     }
     return res;
 }
@@ -30,7 +30,7 @@ permutation concat(const vector< vector<vertex> >& classes)
 {
     permutation res;
     for (const auto& v : classes){
-	res.insert(res.end(), v.begin(), v.end());
+        res.insert(res.end(), v.begin(), v.end());
     }
     return res;
 }
@@ -49,13 +49,13 @@ permutation get_permutation(permutation& g_p, permutation& h_p)
 {
     vector<std::pair<vertex, vertex>> change(g_p.size());
     for (int i = 0; i < g_p.size(); ++i){
-	change[i] = {g_p[i], h_p[i]};
+        change[i] = {g_p[i], h_p[i]};
     }
     std::sort(change.begin(), change.end());
 
     permutation perm(h_p.size());
     for (int i = 0; i < h_p.size(); ++i){
-	perm[i] = change[i].second;
+        perm[i] = change[i].second;
     }
     return perm;
 }

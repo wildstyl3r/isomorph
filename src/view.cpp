@@ -1,143 +1,121 @@
 #include "view.hpp"
 #include "ordering.hpp"
 
-View::View(Graph &g, vertex root) : 
-	Graph(g.degrees()),
+View::View(Graph &g, vertex root) :
+    tree(nullptr),
 	_src (g),
 	_root(root),
 	_distance(g.V().size(), g.V().size()+1),
 	_inlet_degree(g.V().size(), 0),
 	_height(0)
-	{   
-	    const unsigned long inf = _src.V().size()+1;
-	    
-	    queue<vertex> bfs;
+{
+    queue<vertex> bfs;
 
-	    _distance[_root] = 0;
+    _distance[_root] = 0;
+    _height = 1;
 
-	    //step 1: distance
-	    vector<bool> used(_src.V().size(), false);
-	    used[_root] = true;
-	    bfs.push(_root);
-	    while(!bfs.empty()){
-		vertex v = bfs.front();
-		bfs.pop();
-		for(auto u : _src.V()[v]){
-		    if (used[u] == false){
-			used[u] = true;
-			_distance[u] = _distance[v] + 1;
-            _height = _distance[u]+1;
-			bfs.push(u);
-		    }
-		}
-	    }
-	    
-	    //step 2: edges oriented by distance growth
-	    bfs.push(root);
-	    while(!bfs.empty()){
-		vertex v = bfs.front();
-		bfs.pop();
-		for(auto u : _src.V()[v]){
-		    if (_distance[v] < _distance[u]){
-			_adjacency_vector[v].insert(u);
-			_inlet_degree[u]++;
-			bfs.push(u);
-		    }
-		}
-	    }
-	}
+    //step 1: distance
+    vector<bool> used(_src.V().size(), false);
+    used[_root] = true;
+    bfs.push(_root);
+    while(!bfs.empty()){
+        vertex v = bfs.front();
+        bfs.pop();
+        for(auto u : _src.V()[v]){
+            if (used[u] == false){
+                used[u] = true;
+                _distance[u] = _distance[v] + 1;
+                _height = _distance[u]+1;
+                bfs.push(u);
+            }
+        }
+    }
+
+    _dockyard.resize(_height);
+    _adjacency_vector.resize(_src.V().size());
+
+    for(vertex v = 0; v < _src.V().size(); ++v){
+        _dockyard[_distance[v]].push_back(v);
+
+        //step 2: edges oriented by distance growth
+        for(vertex u = 0; u < _src.V().size(); ++u){
+            if (_src.has({v,u}) && _distance[v] < _distance[u]){
+                _adjacency_vector[v].insert(u);
+                _inlet_degree[u]++;
+            }
+        }
+    }
+}
 
 
 void View::mainline(vertex start,
-		    unordered_set<vertex>& workset,
 		    vector< LexMSTNode* >& nodes)
 {
-    if (workset.empty()) return;
-
     VxOrder ord;
-    vector< std::list<vertex> > dockyard(height() - dist(start));
-    for(const vertex& v : workset){
-	dockyard[dist(v) - dist(start)].push_back(v);
-    }
+    for(vertex c : V()[start]){
+            for(value l = _dockyard.size()-1; l > 0; l--){
+                for(auto i = _dockyard[l].begin(); i != _dockyard[l].end(); i++){
+                    for(auto j = i; j != _dockyard[l].end(); j++){
+                        if (i == j || nodes[*i]->used || nodes[*j]->used) continue;
 
-    for(const vertex& v : dockyard.back())
-	for(const vertex& u : dockyard.back()){
-	    if (v != u) {
-		ord.set(v, u, color(v) == color(u) ? 0 : (color(v) < color(u) ? -1 : 1) );
-	    }
-	}
+                        vector<vertex> i_childset, j_childset;
+                        if (l < _dockyard.size()-1) {
+                            // at this moment dockyard[l+1] is already sorted and used vertices are in the tail
+                            for (auto k = _dockyard[l+1].begin(); k != _dockyard[l+1].end() &&
+                                !nodes[*k]->used; k++) {
 
-    for(value l = dockyard.size()-1; l > 0; l--){
-	for(auto i = dockyard[l].begin(); i != dockyard[l].end(); i++){
-	    for(auto j = i; j != dockyard[l].end(); j++){
-		if (i == j) continue;
+                                if (V()[*i].count(*k)) {
+                                    i_childset.push_back(*k);
+                                }
+                                if (V()[*j].count(*k)) {
+                                    j_childset.push_back(*k);
+                                }
+                            }
+                        }
 
-		vector<vertex> i_childset, j_childset;
-		if (l != dockyard.size()-1) {
-		    // at this moment dockyard[l+1] is already sorted
-		    for(auto k = dockyard[l+1].begin(); k != dockyard[l+1].end(); k++){
-			if (V()[*i].count(*k)) {
-			    i_childset.push_back(*k);
-			}
-			if (V()[*j].count(*k)) {
-			    j_childset.push_back(*k);
-			}
-		    }
-		}
+                        int comp = ord.childset_compare(i_childset, j_childset); //check depth, outlet degree
+                        if (comp == 0) { //check inlet degree
+                            comp = (in_deg(*i) == in_deg(*j) ? 0 : (in_deg(*i) < in_deg(*j) ? -1 : +1));
+                        }
 
-		int comp = ord.childset_compare(i_childset, j_childset); // depth, outlet degree
-		if (comp == 0) { //inlet degree
-		    comp = (in_deg(*i) == in_deg(*j) ? 0 : (in_deg(*i) < in_deg(*j) ? -1 : +1));
-		}
+                        // check color
+                        if (comp == 0) {
+                            comp = (color(*i) == color(*j) ? 0 : (color(*i) < color(*j) ? -1 : +1));
+                        }
+                        ord.set(*i, *j, comp);
+                    }
+                }
+                _dockyard[l].sort([&](vertex lhs, vertex rhs){
+                    if (nodes[lhs]->used) return false;
+                    if (nodes[rhs]->used) return true;
+                    return ord.get(lhs, rhs) == -1;
+                });
+            }
 
-		// color check
-		if (comp == 0) {
-		    comp = (color(*i) == color(*j) ? 0 : (color(*i) < color(*j) ? -1 : +1));
-		}
-		ord.set(*i, *j, comp);
-	    }
-	}
-	dockyard[l].sort([&](vertex lhs, vertex rhs){
-	    return ord.get(lhs, rhs) == -1;
-	});
-    }
+            //every level in the dockyard is sorted at this moment
+            nodes[start]->used = true;
+            value start_children = _distance[start] + 1;
+            vertex v = start;
+            stack<vertex> branch;
+            for(value level = start_children; level < _dockyard.size(); ++level){
+                for(vertex u : _dockyard[level]){
+                    if (!nodes[u]->used && this->has({v,u})) {
+                        nodes[u]->parent = nodes[v];
+                        nodes[u]->used = true;
 
-    //every level in the dockyard is sorted at this moment
-    vertex v = start;
-    stack<vertex> branches;
-    for(value level = 1; level < dockyard.size(); ++level){
-	for(vertex u : dockyard[level]){
-	    if (V()[v].count(u)) {
-		nodes[v]->children.push_back(nodes[u]);
-		nodes[u]->parent = nodes[v];
-		nodes[u]->used = true;
-		branches.push(u);
-		_lexmst.push_back({v,u});
-		v = u;
-		break;
-	    }
-	}
-    }
+                        nodes[v]->children.push_back(nodes[u]);
+                        branch.push(u);
+                        _lexmst.push_back({v,u});
+                        v = u;
+                        break;
+                    }
+                }
+            }
 
-    dockyard.clear();
-
-    while(!branches.empty()){
-	unordered_set<vertex> ws;
-		
-	queue<vertex> bfs;
-	bfs.push(branches.top());
-	while(!bfs.empty()){
-	    vertex v = bfs.front();
-	    bfs.pop();
-	    for(vertex u : V()[v]){
-		if (!nodes[u]->used) {
-		    ws.insert(u);
-		    bfs.push(u);
-		}
-	    }
-	}
-	mainline(branches.top(), ws, nodes);
-	branches.pop();
+            while(!branch.empty()){
+                mainline(branch.top(), nodes);
+                branch.pop();
+            }
     }
 }
 
@@ -145,7 +123,7 @@ void View::mainline(vertex start,
 streeng View::lexmst_string()
 {
     if (_lexmst_streeng.length() == 0) {
-	lexmst();
+        lexmst();
     }
     return _lexmst_streeng;
 }
@@ -153,7 +131,7 @@ streeng View::lexmst_string()
 vector<edge> View::lexmst_edges()
 {
     if (_lexmst.size() == 0) {
-	lexmst();
+        lexmst();
     }
     return _lexmst;
 }
@@ -161,18 +139,45 @@ vector<edge> View::lexmst_edges()
 void View::lexmst()
 {
     vector< LexMSTNode* > nodes(V().size(), nullptr);
-    unordered_set<vertex> initial_ws;
     for(vertex i = 0; i < V().size(); i++){
-	nodes[i] =  new LexMSTNode(in_deg(i), out_deg(i), color(i));
-	initial_ws.insert(i);
+        nodes[i] =  new LexMSTNode(in_deg(i), out_deg(i), color(i));
     }
-    nodes[root()]->used = true;
-
-    mainline(root(), initial_ws, nodes);
-
+    
+    mainline(root(), nodes);
+    
     _lexmst_streeng = nodes[root()]->get_str();
+    tree = new Graph(_lexmst);
+    for(vertex v = 0; v < V().size(); ++v){
+        tree->set_color(v, color(v));
+    }
     
     for(vertex i = 0; i < V().size(); i++){
-	delete nodes[i];
+        delete nodes[i];
     }
+}
+
+Graph* View::lexmst_tree()
+{
+    if (tree == nullptr) {
+        lexmst();
+    }
+    return tree;
+}
+
+View::~View(){
+    if (tree != nullptr) {
+        delete tree;
+    }
+}
+
+value View::color(vertex v){
+    return _src.color(v);
+}
+
+string View::label(vertex v){
+    return _src.label(v);
+}
+
+string View::id(vertex v){
+    return _src.id(v);
 }
