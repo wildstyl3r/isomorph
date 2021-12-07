@@ -37,6 +37,7 @@ public:
 
     string label(vertex v);
     string id(vertex v);
+    size_t count_colors();
 
     streeng lexmst_string();
     vector<edge> lexmst_edges();

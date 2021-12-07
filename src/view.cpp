@@ -181,3 +181,7 @@ string View::label(vertex v){
 string View::id(vertex v){
     return _src.id(v);
 }
+
+size_t View::count_colors(){
+    return _src.count_colors();
+}
