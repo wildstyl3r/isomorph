@@ -40,6 +40,7 @@ public:
     permutation& perm();
     ClassificationReport& g();
     ClassificationReport& h();
+    ClassificationReport& operator[](size_t t);
 };
 
 vector<vector<edge>> deconstruct(Graph& G);

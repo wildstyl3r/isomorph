@@ -94,3 +94,12 @@ ClassificationReport& Isomorph::h()
 {
     return _h;
 }
+
+ClassificationReport& Isomorph::operator[](size_t t)
+{
+    if (t == 0){
+        return _g;
+    } else {
+        return _h;
+    }
+}
