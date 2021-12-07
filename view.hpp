@@ -33,11 +33,11 @@ public:
 
     value in_deg(vertex v) { return _inlet_degree[v]; }
     value out_deg(vertex v) { return _adjacency_vector[v].size(); }
-    value color(vertex v);
+    value color(vertex v) const override;
 
-    string label(vertex v);
-    string id(vertex v);
-    size_t count_colors();
+    string label(vertex v) const override;
+    string id(vertex v) const override;
+    size_t count_colors() const override;
 
     streeng lexmst_string();
     vector<edge> lexmst_edges();
