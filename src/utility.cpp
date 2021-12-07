@@ -1,16 +1,16 @@
 #include "utility.hpp"
 
-bool recolor(const classification& classes, Graph& G)
+bool recolor(const classification& classes, Graph* G)
 {
     // classify() did not change coloring, only previous recolor() could
-    if (G.count_colors() == classes.size()){
+    if (G->count_colors() == classes.size()){
         return false;
     }
 
     value color = 0;
     for(const auto& eq_class : classes){
         for(const vertex& v : eq_class.second) {
-            G.set_color(v, color);
+            G->set_color(v, color);
         }
         color++;
     }
@@ -94,10 +94,10 @@ permutation brute_force_classified(const classification& classes_G, const classi
     return permutation();
 }
 
-classification classify_with_views(Graph& G, vector<View*>& views)
+classification classify_with_views(Graph* G, vector<View*>& views)
 {
     classification res;
-    for(vertex i = 0; i < G.V().size(); i++){
+    for(vertex i = 0; i < G->V().size(); i++){
         views[i]->lexmst();
         streeng s = views[i]->lexmst_string();
         res[s].push_back(i);

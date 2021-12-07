@@ -14,12 +14,13 @@
  */
 
 class ClassificationReport{
-    Graph& G;
+    Graph* G;
     classification _classes;
     std::chrono::high_resolution_clock::duration _time;
     value _iterations;
     vector<View*> _views;
 public:
+    ClassificationReport(){}
     ClassificationReport(Graph& g);
     ~ClassificationReport();
     const classification& classes();
@@ -34,6 +35,7 @@ class Isomorph{
     ClassificationReport _h;
     permutation _perm;
 public:
+    Isomorph(){}
     Isomorph(Graph& g, Graph& h, AfterStable mode);
     permutation& perm();
     ClassificationReport& g();

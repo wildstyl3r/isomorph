@@ -3,17 +3,17 @@
 
 using classification_with_views = std::pair<classification, vector<View*>>;
 
-ClassificationReport::ClassificationReport(Graph& g) : G(g), _iterations(0) {
+ClassificationReport::ClassificationReport(Graph& g) : G(&g), _iterations(0) {
     for(vertex v = 0; v < g.V().size(); ++v){
         _views.push_back(new View(g, v));
     }
 
     std::chrono::high_resolution_clock::time_point begin = std::chrono::high_resolution_clock::now();
     do{
-        _classes = classify_with_views(g, _views);
+        _classes = classify_with_views(G, _views);
         _iterations++;
     }
-    while(recolor(_classes, g));
+    while(recolor(_classes, G));
     std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
     _time = (end-begin);
 }
