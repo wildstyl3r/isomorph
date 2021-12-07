@@ -35,6 +35,8 @@ permutation get_permutation(permutation& g_p, permutation& h_p);
  */
 bool destabilize(const classification& classes, Graph& G);
 
+classification classify_with_views(Graph& G, vector<View*>& views);
+
 permutation brute_force_classified(const classification& classes_G, const classification& classes_H, Graph& G, Graph& H);
 
 #endif

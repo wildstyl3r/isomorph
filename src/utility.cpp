@@ -63,10 +63,10 @@ permutation get_permutation(permutation& g_p, permutation& h_p)
 bool destabilize(const classification& classes, Graph& G)
 {
     for (const auto& c : classes){
-	if (c.second.size() > 0){
-	    G.set_color(c.second.front(), classes.size());
-	    return true;
-	}
+        if (c.second.size() > 1){
+            G.set_color(c.second.front(), classes.size());
+            return true;
+        }
     }
     return false;
 }
@@ -92,4 +92,15 @@ permutation brute_force_classified(const classification& classes_G, const classi
 	}
     }
     return permutation();
+}
+
+classification classify_with_views(Graph& G, vector<View*>& views)
+{
+    classification res;
+    for(vertex i = 0; i < G.V().size(); i++){
+        views[i]->lexmst();
+        streeng s = views[i]->lexmst_string();
+        res[s].push_back(i);
+    }
+    return res;
 }

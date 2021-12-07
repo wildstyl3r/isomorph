@@ -13,30 +13,34 @@
  * until number of classes isn't equal to number of vertices
  */
 
-struct ClassificationReport{
-    classification classes;
-    std::chrono::high_resolution_clock::duration time;
-    value iterations;
-    vector<View*> views;
+class ClassificationReport{
+    Graph& G;
+    classification _classes;
+    std::chrono::high_resolution_clock::duration _time;
+    value _iterations;
+    vector<View*> _views;
+public:
+    ClassificationReport(Graph& g);
+    ~ClassificationReport();
+    const classification& classes();
+    const std::chrono::high_resolution_clock::duration& time();
+    size_t iterations();
+    const vector<View*>& views();
+    void recalc();
 };
 
-struct IsomorphReport{
-    ClassificationReport g;
-    ClassificationReport h;
-    permutation perm;
+class Isomorph{
+    ClassificationReport _g;
+    ClassificationReport _h;
+    permutation _perm;
+public:
+    Isomorph(Graph& g, Graph& h, AfterStable mode);
+    permutation& perm();
+    ClassificationReport& g();
+    ClassificationReport& h();
 };
-
-IsomorphReport solver(Graph& G, Graph& H, AfterStable mode = AfterStable::Destabilize, morph_iter_callback_t callback = nullptr);
-
-classification classify(Graph& G);
-
-classification classify_canonical(Graph& G);
 
 vector<vector<edge>> deconstruct(Graph& G);
 
-
-ClassificationReport classify_canonical_ext(Graph& G);
-ClassificationReport classify_canonical_ext_old(Graph& G);
-classification classify_with_views(Graph& G, vector<View*>& views);
 
 #endif
