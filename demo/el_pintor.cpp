@@ -37,8 +37,8 @@ int main(int argc, char *argv[])
       qg.drawGraph(&g);
       qg.text = "recoloring iterations: " + QString::number(cr.iterations()) + "\n" +
               "time: " + QString::number(std::chrono::duration_cast<std::chrono::milliseconds>(cr.time()).count()) + "ms\n";
-      qg.setDblClick([&](int v, bool left){
-          if (g.has(v)){
+      qg.setDblClick([&](Graph* w, int v, bool left){
+          if (w->has(v)){
               if (left){
                   if(!g_qg_cache[v]->isGraphSet()){
                       g_qg_cache[v]->drawGraph(cr.views()[v]->lexmst_tree());
@@ -48,8 +48,8 @@ int main(int argc, char *argv[])
               }
           }
       });
-      qg.setSelect([&](int v){
-          if (g.has(v)){
+      qg.setSelect([&](Graph* w, int v){
+          if (w->has(v)){
               QVector<edge> es;
               if(!qg.highlighted(v)){
                   qg.highlight(QVector<vertex>(1,v));

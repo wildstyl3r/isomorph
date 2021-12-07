@@ -138,6 +138,8 @@ vector<edge> View::lexmst_edges()
 
 void View::lexmst()
 {
+    delete tree;
+    _lexmst.clear();
     vector< LexMSTNode* > nodes(V().size(), nullptr);
     for(vertex i = 0; i < V().size(); i++){
         nodes[i] =  new LexMSTNode(in_deg(i), out_deg(i), color(i));
