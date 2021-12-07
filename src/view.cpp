@@ -170,18 +170,18 @@ View::~View(){
     }
 }
 
-value View::color(vertex v){
+value View::color(vertex v) const {
     return _src.color(v);
 }
 
-string View::label(vertex v){
+string View::label(vertex v) const {
     return _src.label(v);
 }
 
-string View::id(vertex v){
+string View::id(vertex v) const {
     return _src.id(v);
 }
 
-size_t View::count_colors(){
+size_t View::count_colors() const {
     return _src.count_colors();
 }
