@@ -21,7 +21,7 @@ View::View(Graph &g, vertex root) :
     while(!bfs.empty()){
         vertex v = bfs.front();
         bfs.pop();
-        for(auto u : _src.V()[v]){
+        for(auto u : _src.V(v)){
             if (used[u] == false){
                 used[u] = true;
                 _distance[u] = _distance[v] + 1;
@@ -48,74 +48,88 @@ View::View(Graph &g, vertex root) :
 }
 
 
-void View::mainline(vertex start,
-		    vector< LexMSTNode* >& nodes)
+void View::mainline(vertex start,   //фактически, идеально информированный поиск в глубину с предподсчетом перед каждым заглублением
+            vector< LexMSTNode* >& nodes) //TODO: переписать в виде цикла со стеком в lexmst(), проверить возможности ускорения предподсчета
 {
     VxOrder ord;
-    for(vertex c : V()[start]){
-            for(value l = _dockyard.size()-1; l > 0; l--){
-                for(auto i = _dockyard[l].begin(); i != _dockyard[l].end(); i++){
-                    for(auto j = i; j != _dockyard[l].end(); j++){
-                        if (i == j || nodes[*i]->used || nodes[*j]->used) continue;
+    for(vertex c : V(start)){
+        for(value l = _dockyard.size()-1; l > 0; l--){
+            for(auto i = _dockyard[l].begin(); i != _dockyard[l].end(); i++){
+                for(auto j = i; j != _dockyard[l].end(); j++){
+                    if (i == j || nodes[*i]->used || nodes[*j]->used) continue;
 
-                        vector<vertex> i_childset, j_childset;
-                        if (l < _dockyard.size()-1) {
-                            // at this moment dockyard[l+1] is already sorted and used vertices are in the tail
-                            for (auto k = _dockyard[l+1].begin(); k != _dockyard[l+1].end() &&
-                                !nodes[*k]->used; k++) {
+                    vector<vertex> i_childset, j_childset;
+                    if (l < _dockyard.size()-1) {
+                        // at this moment dockyard[l+1] is already sorted and used vertices are in the tail
+                        for (auto k = _dockyard[l+1].begin(); k != _dockyard[l+1].end() &&
+                             !nodes[*k]->used; k++) {
 
-                                if (V()[*i].count(*k)) {
-                                    i_childset.push_back(*k);
+                            if (V(*i).count(*k)) {
+                                i_childset.push_back(*k);
+                            }
+                            if (V(*j).count(*k)) {
+                                j_childset.push_back(*k);
+                            }
+                        }
+                    }
+
+                    int comp = ord.childset_compare(i_childset, j_childset); //check depth, outlet degree
+
+                    if (comp == 0) { //check inlet degree
+                        value i_up_reject = 0, j_up_reject = 0;
+                        if(l > 1){
+                            for (auto k = _dockyard[l-1].begin(); k != _dockyard[l-1].end(); k++) {
+                                if (V(*k).count(*i) && nodes[*k]->used) {
+                                    i_up_reject++;
                                 }
-                                if (V()[*j].count(*k)) {
-                                    j_childset.push_back(*k);
+                                if (V(*k).count(*j) && nodes[*k]->used) {
+                                    j_up_reject++;
                                 }
                             }
                         }
-
-                        int comp = ord.childset_compare(i_childset, j_childset); //check depth, outlet degree
-                        if (comp == 0) { //check inlet degree
-                            comp = (in_deg(*i) == in_deg(*j) ? 0 : (in_deg(*i) < in_deg(*j) ? -1 : +1));
-                        }
-
-                        // check color
-                        if (comp == 0) {
-                            comp = (color(*i) == color(*j) ? 0 : (color(*i) < color(*j) ? -1 : +1));
-                        }
-                        ord.set(*i, *j, comp);
+                        value i_actual_in_deg = in_deg(*i) - i_up_reject;
+                        value j_actual_in_deg = in_deg(*j) - j_up_reject;
+                        comp = (i_actual_in_deg == j_actual_in_deg ? 0 : (i_actual_in_deg < j_actual_in_deg ? -1 : +1));
                     }
-                }
-                _dockyard[l].sort([&](vertex lhs, vertex rhs){
-                    if (nodes[lhs]->used) return false;
-                    if (nodes[rhs]->used) return true;
-                    return ord.get(lhs, rhs) == -1;
-                });
-            }
 
-            //every level in the dockyard is sorted at this moment
-            nodes[start]->used = true;
-            value start_children = _distance[start] + 1;
-            vertex v = start;
-            stack<vertex> branch;
-            for(value level = start_children; level < _dockyard.size(); ++level){
-                for(vertex u : _dockyard[level]){
-                    if (!nodes[u]->used && this->has({v,u})) {
-                        nodes[u]->parent = nodes[v];
-                        nodes[u]->used = true;
-
-                        nodes[v]->children.push_back(nodes[u]);
-                        branch.push(u);
-                        _lexmst.push_back({v,u});
-                        v = u;
-                        break;
+                    // check color
+                    if (comp == 0) {
+                        comp = (color(*i) == color(*j) ? 0 : (color(*i) < color(*j) ? -1 : +1));
                     }
+                    ord.set(*i, *j, comp);
                 }
             }
+            _dockyard[l].sort([&](vertex lhs, vertex rhs){
+                if (nodes[lhs]->used) return false;
+                if (nodes[rhs]->used) return true;
+                return ord.get(lhs, rhs) == -1;
+            });
+        }
 
-            while(!branch.empty()){
-                mainline(branch.top(), nodes);
-                branch.pop();
+        //every level in the dockyard is sorted at this moment
+        nodes[start]->used = true;
+        value start_children = _distance[start] + 1;
+        vertex v = start;
+        stack<vertex> branch;
+        for(value level = start_children; level < _dockyard.size(); ++level){
+            for(vertex u : _dockyard[level]){ //вершина, достижимая из предыдущей может быть и не первой в списке
+                if (!nodes[u]->used && this->has({v,u})) {
+                    nodes[u]->parent = nodes[v];
+                    nodes[u]->used = true;
+
+                    nodes[v]->children.push_back(nodes[u]);
+                    branch.push(u);
+                    _lexmst.push_back({v,u});
+                    v = u;
+                    break;
+                }
             }
+        }
+
+        while(!branch.empty()){
+            mainline(branch.top(), nodes);
+            branch.pop();
+        }
     }
 }
 

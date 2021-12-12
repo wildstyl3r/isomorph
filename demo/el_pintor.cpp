@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
   auto f = QFileDialog::getOpenFileName(&qg,
                                         "Open Graph",
                                         "~/",
-                                        "Graph Files (*.tgf *.dot)").toStdString();
+                                        "Graph Files (*.tgf *.dot *.cgf)").toStdString();
   if (f != "") {
       Graph g(f);
 
