@@ -3,14 +3,15 @@
 
 using classification_with_views = std::pair<classification, vector<View*>>;
 
-ClassificationReport::ClassificationReport(Graph& g) : G(&g), _iterations(0) {
+ClassificationReport::ClassificationReport(Graph& g, std::function<void()> callback) : G(&g), _iterations(0) {
     for(vertex v = 0; v < g.V().size(); ++v){
         _views.push_back(new View(g, v));
+        if(callback) callback();
     }
 
     std::chrono::high_resolution_clock::time_point begin = std::chrono::high_resolution_clock::now();
     do{
-        _classes = classify_with_views(G, _views);
+        _classes = classify_with_views(G, _views, callback);
         _iterations++;
     }
     while(recolor(_classes, G));
@@ -48,7 +49,9 @@ void ClassificationReport::recalc(){
     while(recolor(_classes, G));
 }
 
-Isomorph::Isomorph(Graph& g, Graph& h, AfterStable mode) : _g(g), _h(h) {
+Isomorph::Isomorph(Graph& g, Graph& h, AfterStable mode,
+                   std::function<void()> callback_G,
+                   std::function<void()> callback_H) : _g(g, callback_G), _h(h, callback_H) {
     permutation s_g, s_h;
     switch (mode) {
     case AfterStable::None:

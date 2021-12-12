@@ -21,7 +21,7 @@ class ClassificationReport{
     vector<View*> _views;
 public:
     ClassificationReport(){}
-    ClassificationReport(Graph& g);
+    ClassificationReport(Graph& g, std::function<void()> callback = nullptr);
     ~ClassificationReport();
     const classification& classes();
     const std::chrono::high_resolution_clock::duration& time();
@@ -36,7 +36,9 @@ class Isomorph{
     permutation _perm;
 public:
     Isomorph(){}
-    Isomorph(Graph& g, Graph& h, AfterStable mode);
+    Isomorph(Graph& g, Graph& h, AfterStable mode,
+             std::function<void()> callback_G = nullptr,
+             std::function<void()> callback_H = nullptr);
     permutation& perm();
     ClassificationReport& g();
     ClassificationReport& h();
