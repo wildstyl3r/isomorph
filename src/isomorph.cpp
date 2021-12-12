@@ -53,6 +53,15 @@ Isomorph::Isomorph(Graph& g, Graph& h, AfterStable mode,
                    std::function<void()> callback_G,
                    std::function<void()> callback_H) : _g(g, callback_G), _h(h, callback_H) {
     permutation s_g, s_h;
+    for(auto& t : _g.classes()){
+        if (!_h.classes().count(t.first)){
+            return;
+        } else {
+            if(_h.classes().at(t.first).size() != t.second.size()){
+                return;
+            }
+        }
+    }
     switch (mode) {
     case AfterStable::None:
         break;
