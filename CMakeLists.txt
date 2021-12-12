@@ -29,5 +29,6 @@ target_link_libraries(isomorph grypho)
 
 if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR QGrypho_BUILD_DEMO)
    AND BUILD_DEMO)
+  add_subdirectory(QGrypho)
   add_subdirectory(demo)
 endif()

@@ -1,5 +1,2 @@
-[submodule "demo/QGrypho"]
-	path = demo/QGrypho
-	url = /home/wildstyl3r/Desktop/alg/QGrypho/
 [submodule "QGrypho"]
 	url = git://github.com/wildstyl3r/QGrypho
