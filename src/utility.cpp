@@ -95,14 +95,14 @@ permutation brute_force_classified(const classification& classes_G, const classi
 }
 
 classification classify_with_views(Graph* G, vector<View*>& views,
-                                   std::function<void()> callback)
+                                   std::function<void(bool)> callback)
 {
     classification res;
     for(vertex i = 0; i < G->V().size(); i++){
         views[i]->lexmst();
         streeng s = views[i]->lexmst_string();
         res[s].push_back(i);
-        if (callback) callback();
+        if (callback) callback(false);
     }
     return res;
 }

@@ -1,0 +1,5 @@
+[submodule "demo/QGrypho"]
+	path = git://github.com/wildstyl3r/QGryph
+	url = /home/wildstyl3r/Desktop/alg/QGrypho/
+[submodule "QGrypho"]
+	url = git://github.com/wildstyl3r/QGrypho	path = git://github.com/wildstyl3r/QGrypho
