@@ -15,7 +15,7 @@ ClassificationReport::ClassificationReport(Graph& g, std::function<void(bool)> c
         _iterations++;
     }
     while(recolor(_classes, G));
-    callback(true);
+    if(callback) callback(true);
     std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
     _time = (end-begin);
 }
