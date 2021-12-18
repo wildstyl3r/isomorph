@@ -75,6 +75,15 @@ Isomorph::Isomorph(Graph& g, Graph& h, AfterStable mode,
             _g.recalc();
             _h.recalc();
         }
+        for(auto& t : _g.classes()){
+            if (!_h.classes().count(t.first)){
+                return;
+            } else {
+                if(_h.classes().at(t.first).size() != t.second.size()){
+                    return;
+                }
+            }
+        }
         break;
     default:
         break;
